@@ -1,22 +1,61 @@
 import { db } from "../data-source";
+import { PatchTodoDTO, PostTodoDTO, PutTodoDTO } from "../dto/todo.dto";
 import { Todo } from "../models/todo.entity";
 
 export class TodoService {
 	private todoRepo = db.getRepository(Todo);
 
-	public async findAllTodos() {
-		let todos = await this.todoRepo.find();
-
-		if (todos.length <= 0) {
-			throw new Error("Unable to fetch todos");
+	public async findAllTodos(): Promise<Todo[]> {
+		try {
+			return this.todoRepo.find();
+		} catch (e) {
+			throw new Error("Failed to fetch users");
 		}
-
-		return todos;
 	}
 
-	public async findTodoByID(id: number) {
-		let todo = await this.todoRepo.findOneBy({ id: id });
-		if (todo === null) throw new Error("Todo not found");
-		return todo;
+	public async findTodoByID(id: number): Promise<Todo> {
+		try {
+			return this.todoRepo.findOneByOrFail({ id: id });
+		}
+		catch (e) {
+			throw new Error()
+		}
+	}
+
+	public async createTodo(todoDto: PostTodoDTO): Promise<Todo> {
+		const todo = new Todo(todoDto.title, todoDto.description ?? "")
+		try {
+			return this.todoRepo.save(todo);
+		}
+		catch (e) {
+			throw new Error()
+		}
+	}
+
+	public async patchTodo(todoDto: PatchTodoDTO, id: number): Promise<Todo> {
+		const todo = await this.todoRepo.update({id}, todoDto);
+		if (todo === null || todo === undefined) throw new Error();
+		const updatedTodo = this.findTodoByID(id);
+		return updatedTodo;
+	}
+
+	public async putTodo(todoDto: PutTodoDTO, id: number): Promise<Todo> {
+		const todo = new Todo(todoDto.title, todoDto.description)
+
+		try {
+			return this.todoRepo.save({...todo, id});
+		}
+		catch (e) {
+			throw new Error()
+		}
+	}
+
+	public async removeTodo(id: number): Promise<void> {
+		try {
+			this.todoRepo.delete({ id });
+		} 
+		catch (e) {
+			throw new Error()
+		}
 	}
 }

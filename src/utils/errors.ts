@@ -1,10 +1,10 @@
-import { StatusCodes } from "./constants";
+import { HttpStatusCodes } from "./constants";
 
 export class ErrorResponse {
-  public statusCode: StatusCodes
+  public statusCode: HttpStatusCodes
   public errorMessage: string
 
-  constructor(statusCode: StatusCodes, errorMessage: string) {
+  constructor(statusCode: HttpStatusCodes, errorMessage: string) {
     this.statusCode = statusCode
     this.errorMessage = errorMessage
   }
